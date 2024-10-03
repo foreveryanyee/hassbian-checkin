@@ -1,0 +1,53 @@
+name: Auto Checkin
+run-name: ${{github.actor}} is testing checkin
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'imgs/'
+  schedule:
+    - cron: '0  0,12 * * *'
+  watch:
+    types: started
+
+jobs:
+  build:
+    name: Auto Checkin
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+    - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+    - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+    - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+    - name: check out code
+      uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+        pip install bs4
+    - name: running checnIn
+      run: |
+        python checkin.py
+      env:
+        PUSHPLUS: ${{ secrets.PUSHPLUS }}
+        COOKIES: ${{ secrets.COOKIES }}
+    - name: keep alive
+      uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@v2
+      with:
+        token: ${{ github.token }}
+        repository: ${{ github.repository }}
+        retain_days: 0
+        keep_minimum_runs: 10
+        delete_run_by_conclusion_pattern: success
