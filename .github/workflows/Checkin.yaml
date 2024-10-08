@@ -9,7 +9,7 @@ on:
       - 'README.md'
       - 'imgs/'
   schedule:
-    - cron: '11  0,12 * * *'
+    - cron: '11  3,15 * * *'
   watch:
     types: started
 
